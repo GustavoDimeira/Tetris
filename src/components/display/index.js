@@ -1,5 +1,5 @@
 import CrrLevel from './CrrLevel';
-import NextPice from './NextPice';
+import NextPiece from './NextPiece';
 import Scorre from './Scorre';
 
-export { CrrLevel, NextPice, Scorre };
+export { CrrLevel, NextPiece, Scorre };
