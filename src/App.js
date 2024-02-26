@@ -18,7 +18,7 @@ function App() {
   const [scorre, updateScorre] = useState(0);
   const [nextPiece, changeNextPiece] = useState();
   const [linesCleared, updateLinesCleared] = useState(0);
-  const [gameState, changeState] = useState(states.Running); // running, lost, win, initial
+  const [gameState, changeState] = useState(states.Initial); // running, lost, win, initial
 
   // list with all pieces object in game
   const [pieces, changePieces] = useState([]);
@@ -33,7 +33,7 @@ function App() {
         updateLinesCleared={updateLinesCleared}
         gameState={gameState}
         changeState={changeState}
-        pieces={pieces}
+        pieces={pieces} // talez irrelevante
         updateCount={updateCount}
         updateRate={updateRate}
       />

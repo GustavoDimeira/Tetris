@@ -1,8 +1,4 @@
-import { 
-  Scorre,
-  NextPiece,
-  CrrLevel,
-} from './display';
+import { Scorre, NextPiece, CrrLevel, } from './display';
 
 import { useState } from 'react';
 
