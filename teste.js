@@ -1,4 +1,8 @@
-let a = [1, 2]
+let a = [1, 2, 3]
 
-a[0] += 1;
-console.log(a)
+let b = a.every((number) => {
+  console.log(number)
+  return !(number > 4)
+});
+
+console.log(b)

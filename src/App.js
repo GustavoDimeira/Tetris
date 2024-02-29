@@ -33,7 +33,7 @@ function App() {
         updateLinesCleared={updateLinesCleared}
         gameState={gameState}
         changeState={changeState}
-        pieces={pieces} // talez irrelevante
+        pieces={pieces} // talvez irrelevante
         updateCount={updateCount}
         updateRate={updateRate}
       />

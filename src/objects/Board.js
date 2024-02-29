@@ -1,22 +1,21 @@
 export default class Board {
-  constructor(width, height) {
+  constructor(width= 0, height = 0) {
     this.width = width;
     this.height = height;
     this.rows = []; // array of rows objects
-  
+
     this.crrPiece = null; // piece object
     this.crrPieceAnchor = []; // defines the relative piece position
     this.crrPiecePositions = []; // bidimensional vector
 
-    this.updateScorre = [];
     this.basePoints = 500; // used to calculate the scorre to update
   }
   addRow(row) { this.rows.push(row) }
   // recives an array of rows indexes and amount of rows to drop
-  setDown(rowsToDrop) {  
+  setDown(rowsToDrop) {
     // iterate from the ending to the beginning
-    rowsToDrop.slice().reverse().forEach(([ rowIndex, amount ]) => {
-      for (let x =  0; x < this.width; x++) {
+    rowsToDrop.slice().reverse().forEach(([rowIndex, amount]) => {
+      for (let x = 0; x < this.width; x++) {
         if (amount) {
           const isOcupated = this.rows[rowIndex].cells[x].isOcupated;
           this.rows[rowIndex].cells[x].isOcupated = false;
@@ -40,7 +39,7 @@ export default class Board {
   }
   // update the scorre based on the amount of rows cleared at once (500, 2000, 4500, 8000 ...)
   changeScorre(amtRows) {
-    // this.updateScorre((scorre) => scorre + this.basePoints * amtRows.length ** 2);
+    return this.basePoints * amtRows ** 2;
   }
   // summon a piece in the board
   spawnPiece(piece) {
@@ -63,7 +62,7 @@ export default class Board {
 
     this.crrPieceAnchor = [0, 0]
   }
-  // recive an bidimensional vector of values and updates the crrPosition
+  // recives an bidimensional vector of values and updates the crrPosition
   updatePosition(newPositions) {
     this.crrPiecePositions.forEach((crrPos) => {
       const [row, collum] = crrPos
@@ -77,105 +76,79 @@ export default class Board {
 
     this.crrPiecePositions = newPositions;
   }
-  // checks if it's possible to move down and call the freeze if it's not
-  moveDown() {
-    const newPositions = []
-    let hasStoped = false;
-    this.crrPiecePositions.forEach((pos) => {
-      const [row, colum] = pos;
+  // check if the new piece positions is not overlapin or out of boundaries
+  checkNewPosition(newPos) {
+    return newPos.every(([row, coll]) => {
+      const isOutOfboundaries = row >= this.height || coll >= this.width || coll < 0;
+      if (isOutOfboundaries) return false;
 
-      if (row + 1 === this.height) {
-        hasStoped = true;
-        return
-      }
-
-      const isOcupated = this.rows[row + 1].cells[colum].isOcupated;
-
-      // check if it's occupied and it's not a section of it self
+      const isOcupated = this.rows[row].cells[coll].isOcupated;
       const isItSelf = this.crrPiecePositions.find((pos) => {
-        return pos[0] === row + 1 && pos[1] === colum;
-      })
+        return pos[0] === row && pos[1] === coll
+      });
 
-      if (isOcupated && !isItSelf) {
-        hasStoped = true;
-        return
-      }
-      
-      newPositions.push([row + 1, colum]);
+      return (isItSelf || !isOcupated);
     });
-    
-    if (hasStoped) {
-      this.freze()
-    } else {
-      this.updatePosition(newPositions)
-      this.updateAnchor([1, 0]);
-    }
-  }
-  // checks if it's possible to update the sideways position
-  moveSideways(direction) {
-    const newPositions = []
-    let isAvaliable = true;
-    this.crrPiecePositions.forEach((pos) => {
-      const [row, colum] = pos;
-
-      const newPlace = colum + direction;
-      if (newPlace === this.width || newPlace === -1) {
-        isAvaliable = false;
-        return;
-      }
-
-      const isOcupated = this.rows[row].cells[colum + direction].isOcupated
-
-      // check if it's occupied and it's not a section of it self
-      const isItSelf = this.crrPiecePositions.find((pos) => {
-        return pos[0] === row && pos[1] === colum + direction
-      })
-
-      if (isOcupated && !isItSelf) {
-        isAvaliable = false;
-        return;
-      }
-      
-      newPositions.push([row, colum + direction])
-    });
-    
-    if (isAvaliable) {
-      // update collum
-      this.updatePosition(newPositions)
-      this.updateAnchor([0, direction]);
-    }
   }
   // check if the anchor will not be out of boundaries
   updateAnchor(toAdd) {
+    const peiceSize = this.crrPiece.mainShape.length
     const [crrRow, crrCollum] = this.crrPieceAnchor;
     const [rowPlus, collumPlus] = toAdd;
 
     const [newRow, newCollum] = [crrRow + rowPlus, crrCollum + collumPlus];
-    const maxCollum = this.width - 1;
+    const [maxRow, maxCollum] = [this.height - peiceSize, this.width - peiceSize];
 
-    if (newRow >= 0 && newCollum >= 0 && newCollum <= maxCollum) {
+    if (newRow >= 0 && newRow <= maxRow && newCollum >= 0 && newCollum <= maxCollum) {
       this.crrPieceAnchor = [newRow, newCollum];
+    }
+  }
+  // check if it's possible to move down and call the freeze function if it's not
+  moveDown() {
+    const newPosition = []
+
+    this.crrPiecePositions.forEach((pos) => {
+      newPosition.push([pos[0] + 1, pos[1]])
+    });
+
+    if (this.checkNewPosition(newPosition)) {
+      this.updatePosition(newPosition);
+      this.updateAnchor([1, 0]);
+    } else {
+      this.freze();
+    }
+  }
+  // check if it's possible to update the sideways position
+  moveSideways(direction) {
+    const newPosition = []
+
+    this.crrPiecePositions.forEach((pos) => {
+      newPosition.push([pos[0], pos[1] + direction])
+    });
+
+    if (this.checkNewPosition(newPosition)) {
+      this.updatePosition(newPosition);
+      this.updateAnchor([0, direction]);
     }
   }
   // get the next vector of rotations and set it in place
   rotate() {
-    const orientantion = this.crrPiece.rotate()
+    const orientantion = this.crrPiece.rotate();
     const [heightAnchor, widthAnchor] = this.crrPieceAnchor;
 
-    this.crrPiecePositions.forEach(([row, collum]) => {
-      this.rows[row].cells[collum].isOcupated = false;      
-    })
-    
-    this.crrPiecePositions = [];
+    const newPosition =  []
 
-    this.crrPiece.orientations[orientantion].forEach((row, height) => {
-      row.forEach((cell, width) => {
-        if (cell) {
-          this.crrPiecePositions.push([height + heightAnchor, width + widthAnchor]);
-          this.rows[height + heightAnchor].cells[width + widthAnchor].isOcupated = true;
-        }
-      })
+    orientantion.forEach((row, i) => {
+      row.forEach((coll, x) => {
+        if (coll) newPosition.push([i + heightAnchor, x + widthAnchor])
+      }, [])
     })
+
+    if (this.checkNewPosition(newPosition)) {
+      this.updatePosition(newPosition);
+    } else {
+      this.crrPiece.reverseRotation()
+    }
   }
   // freeze pieces in place, and check for any complete row
   freze() {
@@ -190,10 +163,12 @@ export default class Board {
 
     rowsFilterd.forEach((row) => {
       if (this.rows[row].updateCellsCount())
-      cleredRows.push(row)
+        cleredRows.push(row)
     })
 
-    this.changeScorre(cleredRows)
     this.dropRows(cleredRows);
+    this.crrPiecePositions = []
+    this.crrPiece.crrRotation = 0;
+    return this.changeScorre(cleredRows.lenght)
   }
 }

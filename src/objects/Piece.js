@@ -4,13 +4,13 @@ export class Piece {
     this.color = color;
 
     this.mainShape = mainShape;
-    this.right = this.rotateVector(this.mainShape)
-    this.bottom = this.rotateVector(this.right)
-    this.left = this.rotateVector(this.bottom)
+    this.right = this.rotateVector(this.mainShape);
+    this.bottom = this.rotateVector(this.right);
+    this.left = this.rotateVector(this.bottom);
 
     this.orientations = [
-      this.mainShape, this.right, this.bottom, this.left
-    ]
+      this.mainShape, this.right, this.bottom, this.left,
+    ];
   }
 
   rotateVector = (vector) => {
@@ -34,7 +34,11 @@ export class Piece {
     // values varies from 0-3
     this.crrRotation = (this.crrRotation + 1) % 4;
 
-    return this.crrRotation;
+    return this.orientations[this.crrRotation];
+  }
+
+  reverseRotation() {
+    this.crrRotation = ((this.crrRotation - 1) === -1) ? 3 : this.crrRotation -= 1;
   }
 }
 

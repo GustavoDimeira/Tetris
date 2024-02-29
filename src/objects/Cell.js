@@ -3,5 +3,6 @@ export default class Cell {
     this.row = row;
     this.collum = collum;
     this.isOcupated = false;
+    this.crrColor = 'yellow'
   }
 }

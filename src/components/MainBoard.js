@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import { Cell, Row, Board, test_shape } from "../objects";
+import { Cell, Row, Board, L_Shape } from "../objects";
 
 const board = new Board(6, 10)
 
 function MainBoard({
   updateScorre, nextPiece, updateLinesCleared, gameState, changeState, pieces, updateCount, updateRate
 }) {
-  const [crrPiece, changeCrrPiece] = useState({ ...nextPiece });
   const [mainBoard, updateBoard] = useState();
 
-  // create a two dimensiona vector, that represents the rows and lines relation
+  // create a two dimensional vector, that represents the rows and lines relation
   useEffect(() => {
     for (let x = 0; x < board.height; x++) {
       board.addRow(new Row(x, board.width))
@@ -53,7 +52,7 @@ function MainBoard({
       }
       <button
         onClick={() => { 
-          board.spawnPiece(test_shape)
+          board.spawnPiece(L_Shape)
           updateBoard({ ...board })
         }}
       >spawn</button>
@@ -69,20 +68,21 @@ function MainBoard({
 
       <button
         onClick={() => {
+          let points = board.moveSideways(1)
+          updateBoard({ ...board })
+          updateScorre((scorre) => scorre + points)
+        }}
+      >
+        moveRight
+      </button>
+
+      <button
+        onClick={() => {
           board.moveSideways(-1)
           updateBoard({ ...board })
         }}
       >
         moveLeft
-      </button>
-
-      <button
-        onClick={() => {
-          board.moveSideways(1)
-          updateBoard({ ...board })
-        }}
-      >
-        moveRight
       </button>
 
       <button
